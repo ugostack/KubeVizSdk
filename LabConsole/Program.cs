@@ -1,19 +1,42 @@
-﻿using k8s;
-using k8s.KubeConfigModels;
+﻿// See https://aka.ms/new-console-template for more information
 
-Console.WriteLine("Hello world");
-// Configurer le client pour pointer vers le proxy
-var config = new KubernetesClientConfiguration
-{
-    Host = "http://192.168.1.71:8080"  // Port redirigé via SSH
-};
+using System.Diagnostics;
+using k8s;
+using k8s.Models;
 
-using var client = new Kubernetes(config);
+Console.WriteLine("Hello, World!");
+var stopWatch = Stopwatch.StartNew();
+var config = KubernetesClientConfiguration.BuildConfigFromConfigFile(Environment.GetEnvironmentVariable("KUBECONFIG").Split(';').First(s => s.Contains("alpha3")));
 
-// Obtenir la liste des pods
-var pods = await client.CoreV1.ListNamespacedPodAsync("ipd-via");
+var client = new Kubernetes(config);
+var podsCount = 0;
 
-foreach (var pod in pods.Items)
-{
-    Console.WriteLine($"Pod: {pod.Metadata.Name}");
-}
+Console.WriteLine("---------------------- NAMESPACES ----------------------");
+var namespaces = await client.CoreV1.ListNamespaceAsync();
+
+//var kubernetesGraphService = new KubernetesGraphService(client);
+//await kubernetesGraphService.GetFilteredGraphAsync("ipd-via", new[] { "Deployment", "Pod", "Service" });
+
+//Console.WriteLine("Nodes:");
+//foreach (var node in graph.Nodes)
+//{
+//    Console.WriteLine($"{node.Key}");
+//    foreach (var value in node.Value)
+//    {
+//        Console.WriteLine($"    |-- {value}");
+//        Console.WriteLine($"    |");
+//    }
+//}
+
+//Console.WriteLine();
+//Console.WriteLine();
+//Console.WriteLine("\nEdges:");
+//foreach (var edge in graph.Edges)
+//{
+//    Console.WriteLine($"[{edge.From.Kind}] {edge.From.Name} --[{edge.Relation}]--> [{edge.From.Kind}] {edge.To.Name}");
+//}
+
+
+stopWatch.Stop();
+
+Console.WriteLine($"Number of pod : {podsCount} in {stopWatch.Elapsed}");
